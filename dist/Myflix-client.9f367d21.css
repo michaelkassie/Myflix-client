@@ -1,4 +1,10 @@
-.my-flix {
-  color: #4682b4;
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
 }
 /*# sourceMappingURL=Myflix-client.9f367d21.css.map */
