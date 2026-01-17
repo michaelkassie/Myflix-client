@@ -48,7 +48,7 @@ MovieView.propTypes = {
     _id: PropTypes.string.isRequired,
     Title: PropTypes.string.isRequired,
     Description: PropTypes.string,
-    ImagePath: PropTypes.string,   // ✅ matches JSX
+    ImagePath: PropTypes.string,   
 
     Genre: PropTypes.shape({
       Name: PropTypes.string.isRequired,
