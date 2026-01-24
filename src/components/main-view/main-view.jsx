@@ -11,6 +11,14 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Alert from "react-bootstrap/Alert";
 
+// React Bootstrap components
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
+import Alert from "react-bootstrap/Alert";
+
 export const MainView = () => {
   const [movies, setMovies] = useState([]);
 ;
@@ -122,6 +130,9 @@ export const MainView = () => {
           </Col>
         </Row>
       </Container>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     );
   }
@@ -133,6 +144,7 @@ export const MainView = () => {
 
   // Otherwise show list of MovieCards
   return (
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     <div>
       <h1>myFlix</h1>
@@ -146,6 +158,8 @@ export const MainView = () => {
       ))}
     </div>
 =======
+=======
+>>>>>>> Stashed changes
     <Container className="py-4">
       <Row className="align-items-center mb-3">
         <Col>
@@ -185,6 +199,9 @@ export const MainView = () => {
         </Row>
       )}
     </Container>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   );
 };

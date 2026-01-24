@@ -61,8 +61,12 @@ MovieView.propTypes = {
     Title: PropTypes.string.isRequired,
     Description: PropTypes.string,
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     ImagePath: PropTypes.string,   // ✅ matches JSX
 
+=======
+    ImagePath: PropTypes.string,
+>>>>>>> Stashed changes
 =======
     ImagePath: PropTypes.string,
 >>>>>>> Stashed changes
