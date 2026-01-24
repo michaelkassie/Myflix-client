@@ -1,25 +1,28 @@
 import PropTypes from "prop-types";
 
+// React Bootstrap
+import Card from "react-bootstrap/Card";
+
 export const MovieCard = ({ movie, onMovieClick }) => {
   return (
-    <div
+    <Card
+      className="h-100 cursor-pointer"
       onClick={() => onMovieClick(movie)}
-      style={{
-        border: "1px solid #ccc",
-        padding: "12px",
-        marginBottom: "10px",
-        cursor: "pointer",
-        borderRadius: "8px"
-      }}
+      style={{ cursor: "pointer" }}
     >
-      <div style={{ fontWeight: "bold" }}>{movie.Title}</div>
-    </div>
+      <Card.Body className="d-flex align-items-center justify-content-center">
+        <Card.Title className="text-center mb-0">
+          {movie.Title}
+        </Card.Title>
+      </Card.Body>
+    </Card>
   );
 };
+
 MovieCard.propTypes = {
   movie: PropTypes.shape({
     _id: PropTypes.string.isRequired,
-    Title: PropTypes.string.isRequired
+    Title: PropTypes.string.isRequired,
   }).isRequired,
-  onMovieClick: PropTypes.func.isRequired
+  onMovieClick: PropTypes.func.isRequired,
 };

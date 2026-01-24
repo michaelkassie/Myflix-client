@@ -1,45 +1,57 @@
-
 import PropTypes from "prop-types";
 
-
+// React Bootstrap
+import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
+import Image from "react-bootstrap/Image";
 
 export const MovieView = ({ movie, onBackClick }) => {
   return (
-    <div>
-      <button onClick={onBackClick} style={{ marginBottom: "12px" }}>
-        Back
-      </button>
+    <Card>
+      <Card.Body>
+        <Button variant="link" onClick={onBackClick} className="p-0 mb-3">
+          ← Back
+        </Button>
 
-      <h2>{movie.Title}</h2>
+        <Card.Title as="h2" className="mb-3">
+          {movie.Title}
+        </Card.Title>
 
-      <img
-        src={movie.ImagePath}
-        alt={`${movie.Title} poster`}
-        style={{
-          width: "220px",
-          display: "block",
-          marginBottom: "12px",
-          borderRadius: "8px"
-        }}
-      />
+        {/* Poster */}
+        {movie.ImagePath && (
+          <div className="mb-3">
+            <Image
+              src={movie.ImagePath}
+              alt={`${movie.Title} poster`}
+              rounded
+              fluid
+            />
+          </div>
+        )}
 
-      <p>{movie.Description}</p>
+        {/* Description */}
+        {movie.Description && <Card.Text className="mb-4">{movie.Description}</Card.Text>}
 
-      <div style={{ marginTop: "12px" }}>
-        <h3>Genre</h3>
-        <p>
-          <b>{movie.Genre.Name}</b>: {movie.Genre.Description}
-        </p>
-      </div>
+        {/* Genre */}
+        <div className="mb-4">
+          <h3 className="h5 mb-2">Genre</h3>
+          <p className="mb-0">
+            <b>{movie.Genre?.Name}</b>
+            {movie.Genre?.Description ? `: ${movie.Genre.Description}` : ""}
+          </p>
+        </div>
 
-      <div style={{ marginTop: "12px" }}>
-        <h3>Director</h3>
-        <p>
-          <b>{movie.Director.Name}</b> (Born: {movie.Director.Birth})
-        </p>
-        <p>{movie.Director.Bio}</p>
-      </div>
-    </div>
+        {/* Director */}
+        <div>
+          <h3 className="h5 mb-2">Director</h3>
+          <p className="mb-1">
+            <b>{movie.Director?.Name}</b>
+            {movie.Director?.Birth ? ` (Born: ${movie.Director.Birth})` : ""}
+          </p>
+          {movie.Director?.Bio && <p className="mb-0">{movie.Director.Bio}</p>}
+        </div>
+      </Card.Body>
+    </Card>
   );
 };
 
@@ -48,19 +60,21 @@ MovieView.propTypes = {
     _id: PropTypes.string.isRequired,
     Title: PropTypes.string.isRequired,
     Description: PropTypes.string,
+<<<<<<< Updated upstream
     ImagePath: PropTypes.string,   // ✅ matches JSX
 
+=======
+    ImagePath: PropTypes.string,
+>>>>>>> Stashed changes
     Genre: PropTypes.shape({
       Name: PropTypes.string.isRequired,
-      Description: PropTypes.string
+      Description: PropTypes.string,
     }).isRequired,
-
     Director: PropTypes.shape({
       Name: PropTypes.string.isRequired,
       Birth: PropTypes.string,
-      Bio: PropTypes.string
-    }).isRequired
+      Bio: PropTypes.string,
+    }).isRequired,
   }).isRequired,
-
-  onBackClick: PropTypes.func.isRequired
+  onBackClick: PropTypes.func.isRequired,
 };

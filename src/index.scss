@@ -1,11 +1,15 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  padding: 20px;
+
+$primary: #0d6efd;     // Bootstrap default blue
+$body-bg: #f8f9fa;     // light gray background
+$body-color: #212529;  // default text color
+
+
+@import "~bootstrap/scss/bootstrap";
+
+html, body {
+  height: 100%;
 }
 
-h1,
-h2,
-h3 {
-  margin-top: 0;
+#root {
+  min-height: 100%;
 }
