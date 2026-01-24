@@ -11,7 +11,7 @@ export const SignupView = () => {
   const [email, setEmail] = useState("");
   const [birthday, setBirthday] = useState("");
 
-  // Optional (better UX than alert())
+  // Better UX than alert()
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -36,6 +36,7 @@ export const SignupView = () => {
       .then(async (response) => {
         const text = await response.text();
         let result;
+
         try {
           result = JSON.parse(text);
         } catch {
@@ -50,8 +51,11 @@ export const SignupView = () => {
       })
       .then(() => {
         setSuccess("Signup successful! You can now log in.");
-        // If you want to keep your original behavior:
-        // window.location.reload();
+        // Optional: clear fields after success
+        setUsername("");
+        setPassword("");
+        setEmail("");
+        setBirthday("");
       })
       .catch((err) => {
         setError(err.message);
@@ -60,7 +64,6 @@ export const SignupView = () => {
 
   return (
     <Form onSubmit={handleSubmit}>
-      {/* Feedback messages */}
       {error && (
         <Alert variant="danger" className="mb-3">
           {error}

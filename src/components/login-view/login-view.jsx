@@ -9,7 +9,6 @@ export const LoginView = ({ onLoggedIn }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Optional UX improvement
   const [error, setError] = useState("");
 
   const handleSubmit = (event) => {
@@ -29,6 +28,7 @@ export const LoginView = ({ onLoggedIn }) => {
       .then(async (response) => {
         const text = await response.text();
         let data;
+
         try {
           data = JSON.parse(text);
         } catch {

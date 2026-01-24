@@ -60,25 +60,16 @@ MovieView.propTypes = {
     _id: PropTypes.string.isRequired,
     Title: PropTypes.string.isRequired,
     Description: PropTypes.string,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    ImagePath: PropTypes.string,   // ✅ matches JSX
-
-=======
     ImagePath: PropTypes.string,
->>>>>>> Stashed changes
-=======
-    ImagePath: PropTypes.string,
->>>>>>> Stashed changes
     Genre: PropTypes.shape({
       Name: PropTypes.string.isRequired,
       Description: PropTypes.string,
-    }).isRequired,
+    }),
     Director: PropTypes.shape({
       Name: PropTypes.string.isRequired,
       Birth: PropTypes.string,
       Bio: PropTypes.string,
-    }).isRequired,
+    }),
   }).isRequired,
   onBackClick: PropTypes.func.isRequired,
 };

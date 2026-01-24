@@ -1,62 +1,54 @@
 import { useState, useEffect } from "react";
 import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
+import { LoginView } from "../login-view/login-view";
+import { SignupView } from "../signup-view/signup-view";
 
-
-// React Bootstrap components
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import Alert from "react-bootstrap/Alert";
-
-// React Bootstrap components
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
 import Alert from "react-bootstrap/Alert";
 
 export const MainView = () => {
-  const [movies, setMovies] = useState([]);
-;
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const storedToken = localStorage.getItem("token");
 
+  const [user, setUser] = useState(storedUser ? storedUser : null);
+  const [token, setToken] = useState(storedToken ? storedToken : null);
+
+  const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState("");
+
   useEffect(() => {
-  fetch("https://movie-api-tvzg.onrender.com/movies")
-    .then((response) => response.json())
-    .then((data) => {
-      setMovies(data);
+    if (!user || !token) return;
+
+    setIsLoading(true);
+    setFetchError("");
+
+    fetch("https://movie-api-tvzg.onrender.com/movies", {
+      headers: { Authorization: `Bearer ${token}` },
     })
-<<<<<<< Updated upstream
-    .catch((error) => {
-      console.error("Error fetching movies:", error);
-    });
-}, []);
-=======
       .then(async (response) => {
         if (response.status === 401) {
+          // token invalid/expired → force logout so user can login again
           localStorage.clear();
           setUser(null);
           setToken(null);
           setMovies([]);
+          setSelectedMovie(null);
           throw new Error("Session expired. Please log in again.");
         }
->>>>>>> Stashed changes
 
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || `HTTP error! status: ${response.status}`);
+        }
 
-<<<<<<< Updated upstream
-  // Show details view if a movie is selected
-  if (selectedMovie) {
-    return (
-      <MovieView
-        movie={selectedMovie}
-        onBackClick={() => setSelectedMovie(null)}
-      />
-=======
         return response.json();
       })
       .then((data) => setMovies(data))
@@ -87,9 +79,9 @@ export const MainView = () => {
                   <Card.Body>
                     <Card.Title className="mb-3">Login</Card.Title>
                     <LoginView
-                      onLoggedIn={(user, token) => {
-                        setUser(user);
-                        setToken(token);
+                      onLoggedIn={(newUser, newToken) => {
+                        setUser(newUser);
+                        setToken(newToken);
                       }}
                     />
                   </Card.Body>
@@ -130,36 +122,11 @@ export const MainView = () => {
           </Col>
         </Row>
       </Container>
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     );
   }
 
-  // Empty list fallback (good practice)
-  if (movies.length === 0) {
-    return <div>The list is empty!</div>;
-  }
-
-  // Otherwise show list of MovieCards
+  // ---------- MOVIE LIST ----------
   return (
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    <div>
-      <h1>myFlix</h1>
-
-      {movies.map((movie) => (
-        <MovieCard
-          key={movie._id}
-          movie={movie}
-          onMovieClick={(newSelectedMovie) => setSelectedMovie(newSelectedMovie)}
-        />
-      ))}
-    </div>
-=======
-=======
->>>>>>> Stashed changes
     <Container className="py-4">
       <Row className="align-items-center mb-3">
         <Col>
@@ -199,9 +166,5 @@ export const MainView = () => {
         </Row>
       )}
     </Container>
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   );
 };

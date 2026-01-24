@@ -17417,61 +17417,261 @@ var _jsxDevRuntime = require("react/jsx-dev-runtime");
 var _react = require("react");
 var _movieCard = require("../movie-card/movie-card");
 var _movieView = require("../movie-view/movie-view");
+var _loginView = require("../login-view/login-view");
+var _signupView = require("../signup-view/signup-view");
 var _s = $RefreshSig$();
 const MainView = ()=>{
     _s();
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const storedToken = localStorage.getItem("token");
+    const [user, setUser] = (0, _react.useState)(storedUser ? storedUser : null);
+    const [token, setToken] = (0, _react.useState)(storedToken ? storedToken : null);
     const [movies, setMovies] = (0, _react.useState)([]);
     const [selectedMovie, setSelectedMovie] = (0, _react.useState)(null);
+    const [isLoading, setIsLoading] = (0, _react.useState)(false);
+    const [fetchError, setFetchError] = (0, _react.useState)("");
     (0, _react.useEffect)(()=>{
-        fetch("https://movie-api-tvzg.onrender.com/movies").then((response)=>response.json()).then((data)=>{
-            setMovies(data);
-        }).catch((error)=>{
-            console.error("Error fetching movies:", error);
-        });
-    }, []);
-    // Show details view if a movie is selected
-    if (selectedMovie) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieView.MovieView), {
-        movie: selectedMovie,
-        onBackClick: ()=>setSelectedMovie(null)
-    }, void 0, false, {
+        if (!user || !token) return;
+        setIsLoading(true);
+        setFetchError("");
+        fetch("https://movie-api-tvzg.onrender.com/movies", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }).then(async (response)=>{
+            if (response.status === 401) {
+                // token invalid/expired → force logout so user can login again
+                localStorage.clear();
+                setUser(null);
+                setToken(null);
+                setMovies([]);
+                throw new Error("Session expired. Please log in again.");
+            }
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(text || `HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        }).then((data)=>setMovies(data)).catch((error)=>setFetchError(error.message)).finally(()=>setIsLoading(false));
+    }, [
+        user,
+        token
+    ]);
+    const onLoggedOut = ()=>{
+        setUser(null);
+        setToken(null);
+        setMovies([]);
+        setSelectedMovie(null);
+        setFetchError("");
+        localStorage.clear();
+    };
+    // ---------- AUTH SCREEN ----------
+    if (!user) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+        style: {
+            maxWidth: "900px",
+            margin: "40px auto",
+            padding: "0 16px"
+        },
+        children: [
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h1", {
+                style: {
+                    marginBottom: "20px"
+                },
+                children: "myFlix"
+            }, void 0, false, {
+                fileName: "src/components/main-view/main-view.jsx",
+                lineNumber: 64,
+                columnNumber: 9
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                style: {
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "16px"
+                },
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("section", {
+                        style: {
+                            border: "1px solid #ddd",
+                            borderRadius: "10px",
+                            padding: "16px"
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h2", {
+                                style: {
+                                    marginTop: 0
+                                },
+                                children: "Login"
+                            }, void 0, false, {
+                                fileName: "src/components/main-view/main-view.jsx",
+                                lineNumber: 80,
+                                columnNumber: 13
+                            }, undefined),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _loginView.LoginView), {
+                                onLoggedIn: (user, token)=>{
+                                    setUser(user);
+                                    setToken(token);
+                                }
+                            }, void 0, false, {
+                                fileName: "src/components/main-view/main-view.jsx",
+                                lineNumber: 81,
+                                columnNumber: 13
+                            }, undefined)
+                        ]
+                    }, void 0, true, {
+                        fileName: "src/components/main-view/main-view.jsx",
+                        lineNumber: 73,
+                        columnNumber: 11
+                    }, undefined),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("section", {
+                        style: {
+                            border: "1px solid #ddd",
+                            borderRadius: "10px",
+                            padding: "16px"
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h2", {
+                                style: {
+                                    marginTop: 0
+                                },
+                                children: "Sign Up"
+                            }, void 0, false, {
+                                fileName: "src/components/main-view/main-view.jsx",
+                                lineNumber: 96,
+                                columnNumber: 13
+                            }, undefined),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _signupView.SignupView), {}, void 0, false, {
+                                fileName: "src/components/main-view/main-view.jsx",
+                                lineNumber: 97,
+                                columnNumber: 13
+                            }, undefined)
+                        ]
+                    }, void 0, true, {
+                        fileName: "src/components/main-view/main-view.jsx",
+                        lineNumber: 89,
+                        columnNumber: 11
+                    }, undefined)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/main-view/main-view.jsx",
+                lineNumber: 66,
+                columnNumber: 9
+            }, undefined)
+        ]
+    }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 27,
+        lineNumber: 63,
         columnNumber: 7
     }, undefined);
-    // Empty list fallback (good practice)
-    if (movies.length === 0) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
-        children: "The list is empty!"
-    }, void 0, false, {
+    // ---------- MOVIE DETAILS ----------
+    if (selectedMovie) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+        style: {
+            maxWidth: "900px",
+            margin: "40px auto",
+            padding: "0 16px"
+        },
+        children: [
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                onClick: onLoggedOut,
+                style: {
+                    marginBottom: "12px"
+                },
+                children: "Logout"
+            }, void 0, false, {
+                fileName: "src/components/main-view/main-view.jsx",
+                lineNumber: 108,
+                columnNumber: 9
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieView.MovieView), {
+                movie: selectedMovie,
+                onBackClick: ()=>setSelectedMovie(null)
+            }, void 0, false, {
+                fileName: "src/components/main-view/main-view.jsx",
+                lineNumber: 111,
+                columnNumber: 9
+            }, undefined)
+        ]
+    }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 36,
-        columnNumber: 12
+        lineNumber: 107,
+        columnNumber: 7
     }, undefined);
-    // Otherwise show list of MovieCards
+    // ---------- MOVIE LIST ----------
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+        style: {
+            maxWidth: "900px",
+            margin: "40px auto",
+            padding: "0 16px"
+        },
         children: [
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h1", {
                 children: "myFlix"
             }, void 0, false, {
                 fileName: "src/components/main-view/main-view.jsx",
-                lineNumber: 42,
+                lineNumber: 122,
                 columnNumber: 7
             }, undefined),
-            movies.map((movie)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieCard.MovieCard), {
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                onClick: onLoggedOut,
+                style: {
+                    marginBottom: "16px"
+                },
+                children: "Logout"
+            }, void 0, false, {
+                fileName: "src/components/main-view/main-view.jsx",
+                lineNumber: 123,
+                columnNumber: 7
+            }, undefined),
+            fetchError && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                style: {
+                    marginBottom: "12px"
+                },
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("b", {
+                        children: "Error:"
+                    }, void 0, false, {
+                        fileName: "src/components/main-view/main-view.jsx",
+                        lineNumber: 129,
+                        columnNumber: 11
+                    }, undefined),
+                    " ",
+                    fetchError
+                ]
+            }, void 0, true, {
+                fileName: "src/components/main-view/main-view.jsx",
+                lineNumber: 128,
+                columnNumber: 9
+            }, undefined),
+            isLoading && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                children: "Loading movies..."
+            }, void 0, false, {
+                fileName: "src/components/main-view/main-view.jsx",
+                lineNumber: 133,
+                columnNumber: 21
+            }, undefined),
+            !isLoading && movies.length === 0 && !fetchError && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                children: "The list is empty!"
+            }, void 0, false, {
+                fileName: "src/components/main-view/main-view.jsx",
+                lineNumber: 136,
+                columnNumber: 9
+            }, undefined),
+            !isLoading && movies.map((movie)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieCard.MovieCard), {
                     movie: movie,
                     onMovieClick: (newSelectedMovie)=>setSelectedMovie(newSelectedMovie)
                 }, movie._id, false, {
                     fileName: "src/components/main-view/main-view.jsx",
-                    lineNumber: 45,
-                    columnNumber: 9
+                    lineNumber: 141,
+                    columnNumber: 11
                 }, undefined))
         ]
     }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 41,
+        lineNumber: 121,
         columnNumber: 5
     }, undefined);
 };
-_s(MainView, "PO+XgOji7E32nFJj3H5UPLPJ7w4=");
+_s(MainView, "RpEJjmWkBZduESFEPAiN7XhcvG0=");
 _c = MainView;
 var _c;
 $RefreshReg$(_c, "MainView");
@@ -17481,7 +17681,7 @@ $RefreshReg$(_c, "MainView");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","../movie-card/movie-card":"6BY1s","../movie-view/movie-view":"dkfGy","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"6BY1s":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","../movie-card/movie-card":"6BY1s","../movie-view/movie-view":"dkfGy","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi","../login-view/login-view":"8ru9P","../signup-view/signup-view":"nAl3Z"}],"6BY1s":[function(require,module,exports,__globalThis) {
 var $parcel$ReactRefreshHelpers$f387 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
 $parcel$ReactRefreshHelpers$f387.init();
 var prevRefreshReg = globalThis.$RefreshReg$;
@@ -20760,6 +20960,328 @@ $RefreshReg$(_c, "MovieView");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi","prop-types":"GNqOQ"}],"lJZlQ":[function() {},{}]},["hiyDA","gYcKb"], "gYcKb", "parcelRequireaec4", {}, null, null, "http://localhost:1234")
+},{"react/jsx-dev-runtime":"dVPUn","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi","prop-types":"GNqOQ"}],"8ru9P":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$500a = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+$parcel$ReactRefreshHelpers$500a.init();
+var prevRefreshReg = globalThis.$RefreshReg$;
+var prevRefreshSig = globalThis.$RefreshSig$;
+$parcel$ReactRefreshHelpers$500a.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "LoginView", ()=>LoginView);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _react = require("react");
+var _s = $RefreshSig$();
+const LoginView = ({ onLoggedIn })=>{
+    _s();
+    const [username, setUsername] = (0, _react.useState)("");
+    const [password, setPassword] = (0, _react.useState)("");
+    const handleSubmit = (event)=>{
+        event.preventDefault();
+        const payload = {
+            Username: username,
+            Password: password
+        };
+        fetch("https://movie-api-tvzg.onrender.com/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        }).then(async (response)=>{
+            const text = await response.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch  {
+                data = {
+                    message: text
+                };
+            }
+            if (!response.ok) throw new Error(data.message || "Login failed");
+            return data;
+        }).then((data)=>{
+            if (data.user && data.token) {
+                localStorage.setItem("user", JSON.stringify(data.user));
+                localStorage.setItem("token", data.token);
+                onLoggedIn(data.user, data.token);
+            } else throw new Error("Login response missing user/token");
+        }).catch((err)=>alert(err.message));
+    };
+    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
+        className: "auth-form",
+        onSubmit: handleSubmit,
+        children: [
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                className: "form-group",
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                        children: "Username"
+                    }, void 0, false, {
+                        fileName: "src/components/login-view/login-view.jsx",
+                        lineNumber: 50,
+                        columnNumber: 9
+                    }, undefined),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                        type: "text",
+                        value: username,
+                        onChange: (e)=>setUsername(e.target.value),
+                        required: true,
+                        minLength: "5"
+                    }, void 0, false, {
+                        fileName: "src/components/login-view/login-view.jsx",
+                        lineNumber: 51,
+                        columnNumber: 9
+                    }, undefined)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/login-view/login-view.jsx",
+                lineNumber: 49,
+                columnNumber: 7
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                className: "form-group",
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                        children: "Password"
+                    }, void 0, false, {
+                        fileName: "src/components/login-view/login-view.jsx",
+                        lineNumber: 61,
+                        columnNumber: 9
+                    }, undefined),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                        type: "password",
+                        value: password,
+                        onChange: (e)=>setPassword(e.target.value),
+                        required: true
+                    }, void 0, false, {
+                        fileName: "src/components/login-view/login-view.jsx",
+                        lineNumber: 62,
+                        columnNumber: 9
+                    }, undefined)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/login-view/login-view.jsx",
+                lineNumber: 60,
+                columnNumber: 7
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                className: "primary-btn",
+                type: "submit",
+                children: "Submit"
+            }, void 0, false, {
+                fileName: "src/components/login-view/login-view.jsx",
+                lineNumber: 70,
+                columnNumber: 7
+            }, undefined)
+        ]
+    }, void 0, true, {
+        fileName: "src/components/login-view/login-view.jsx",
+        lineNumber: 48,
+        columnNumber: 5
+    }, undefined);
+};
+_s(LoginView, "Lrw7JeD9zj6OUWhT/IH4OIvPKEk=");
+_c = LoginView;
+var _c;
+$RefreshReg$(_c, "LoginView");
+
+  $parcel$ReactRefreshHelpers$500a.postlude(module);
+} finally {
+  globalThis.$RefreshReg$ = prevRefreshReg;
+  globalThis.$RefreshSig$ = prevRefreshSig;
+}
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"nAl3Z":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$69e4 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+$parcel$ReactRefreshHelpers$69e4.init();
+var prevRefreshReg = globalThis.$RefreshReg$;
+var prevRefreshSig = globalThis.$RefreshSig$;
+$parcel$ReactRefreshHelpers$69e4.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "SignupView", ()=>SignupView);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _react = require("react");
+var _s = $RefreshSig$();
+const SignupView = ()=>{
+    _s();
+    const [username, setUsername] = (0, _react.useState)("");
+    const [password, setPassword] = (0, _react.useState)("");
+    const [email, setEmail] = (0, _react.useState)("");
+    const [birthday, setBirthday] = (0, _react.useState)("");
+    const handleSubmit = (event)=>{
+        event.preventDefault();
+        const data = {
+            Username: username,
+            Password: password,
+            Email: email,
+            Birthday: birthday
+        };
+        fetch("https://movie-api-tvzg.onrender.com/users", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        }).then(async (response)=>{
+            const text = await response.text();
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch  {
+                result = {
+                    message: text
+                };
+            }
+            if (!response.ok) throw new Error(result.message || "Signup failed");
+            return result;
+        }).then(()=>{
+            alert("Signup successful! You can now log in.");
+            window.location.reload();
+        }).catch((error)=>{
+            alert(error.message);
+        });
+    };
+    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
+        className: "auth-form",
+        onSubmit: handleSubmit,
+        children: [
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                className: "form-group",
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                        children: "Username"
+                    }, void 0, false, {
+                        fileName: "src/components/signup-view/signup-view.jsx",
+                        lineNumber: 51,
+                        columnNumber: 9
+                    }, undefined),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                        type: "text",
+                        value: username,
+                        onChange: (e)=>setUsername(e.target.value),
+                        required: true,
+                        minLength: "5"
+                    }, void 0, false, {
+                        fileName: "src/components/signup-view/signup-view.jsx",
+                        lineNumber: 52,
+                        columnNumber: 9
+                    }, undefined)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/signup-view/signup-view.jsx",
+                lineNumber: 50,
+                columnNumber: 7
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                className: "form-group",
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                        children: "Password"
+                    }, void 0, false, {
+                        fileName: "src/components/signup-view/signup-view.jsx",
+                        lineNumber: 62,
+                        columnNumber: 9
+                    }, undefined),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                        type: "password",
+                        value: password,
+                        onChange: (e)=>setPassword(e.target.value),
+                        required: true,
+                        minLength: "8"
+                    }, void 0, false, {
+                        fileName: "src/components/signup-view/signup-view.jsx",
+                        lineNumber: 63,
+                        columnNumber: 9
+                    }, undefined)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/signup-view/signup-view.jsx",
+                lineNumber: 61,
+                columnNumber: 7
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                className: "form-group",
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                        children: "Email"
+                    }, void 0, false, {
+                        fileName: "src/components/signup-view/signup-view.jsx",
+                        lineNumber: 73,
+                        columnNumber: 9
+                    }, undefined),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                        type: "email",
+                        value: email,
+                        onChange: (e)=>setEmail(e.target.value),
+                        required: true
+                    }, void 0, false, {
+                        fileName: "src/components/signup-view/signup-view.jsx",
+                        lineNumber: 74,
+                        columnNumber: 9
+                    }, undefined)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/signup-view/signup-view.jsx",
+                lineNumber: 72,
+                columnNumber: 7
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                className: "form-group",
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                        children: "Birthday"
+                    }, void 0, false, {
+                        fileName: "src/components/signup-view/signup-view.jsx",
+                        lineNumber: 83,
+                        columnNumber: 9
+                    }, undefined),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                        type: "date",
+                        value: birthday,
+                        onChange: (e)=>setBirthday(e.target.value),
+                        required: true
+                    }, void 0, false, {
+                        fileName: "src/components/signup-view/signup-view.jsx",
+                        lineNumber: 84,
+                        columnNumber: 9
+                    }, undefined)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/signup-view/signup-view.jsx",
+                lineNumber: 82,
+                columnNumber: 7
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                className: "primary-btn",
+                type: "submit",
+                children: "Submit"
+            }, void 0, false, {
+                fileName: "src/components/signup-view/signup-view.jsx",
+                lineNumber: 92,
+                columnNumber: 7
+            }, undefined)
+        ]
+    }, void 0, true, {
+        fileName: "src/components/signup-view/signup-view.jsx",
+        lineNumber: 49,
+        columnNumber: 5
+    }, undefined);
+};
+_s(SignupView, "jsOQN3GC2XlBG9ITlzCdpyJOnso=");
+_c = SignupView;
+var _c;
+$RefreshReg$(_c, "SignupView");
+
+  $parcel$ReactRefreshHelpers$69e4.postlude(module);
+} finally {
+  globalThis.$RefreshReg$ = prevRefreshReg;
+  globalThis.$RefreshSig$ = prevRefreshSig;
+}
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"lJZlQ":[function() {},{}]},["hiyDA","gYcKb"], "gYcKb", "parcelRequireaec4", {}, null, null, "http://localhost:1234")
 
 //# sourceMappingURL=Myflix-client.ad93b51f.js.map
