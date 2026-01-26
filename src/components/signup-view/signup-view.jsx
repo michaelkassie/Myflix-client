@@ -1,17 +1,18 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-// React Bootstrap
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 
 export const SignupView = () => {
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [birthday, setBirthday] = useState("");
 
-  // Better UX than alert()
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -50,12 +51,15 @@ export const SignupView = () => {
         return result;
       })
       .then(() => {
-        setSuccess("Signup successful! You can now log in.");
-        // Optional: clear fields after success
+        setSuccess("Signup successful! Redirecting to login...");
         setUsername("");
         setPassword("");
         setEmail("");
         setBirthday("");
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 800);
       })
       .catch((err) => {
         setError(err.message);

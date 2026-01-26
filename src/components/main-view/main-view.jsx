@@ -3,13 +3,15 @@ import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
 import { LoginView } from "../login-view/login-view";
 import { SignupView } from "../signup-view/signup-view";
+import { NavigationBar } from "../navigation-bar/navigation-bar";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
+
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 export const MainView = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -17,10 +19,7 @@ export const MainView = () => {
 
   const [user, setUser] = useState(storedUser ? storedUser : null);
   const [token, setToken] = useState(storedToken ? storedToken : null);
-
   const [movies, setMovies] = useState([]);
-  const [selectedMovie, setSelectedMovie] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState("");
 
@@ -35,12 +34,10 @@ export const MainView = () => {
     })
       .then(async (response) => {
         if (response.status === 401) {
-          // token invalid/expired → force logout so user can login again
           localStorage.clear();
           setUser(null);
           setToken(null);
           setMovies([]);
-          setSelectedMovie(null);
           throw new Error("Session expired. Please log in again.");
         }
 
@@ -60,111 +57,129 @@ export const MainView = () => {
     setUser(null);
     setToken(null);
     setMovies([]);
-    setSelectedMovie(null);
     setFetchError("");
     localStorage.clear();
   };
 
-  // ---------- AUTH SCREEN ----------
-  if (!user) {
-    return (
-      <Container className="py-4">
-        <Row className="justify-content-md-center">
-          <Col md={10} lg={8}>
-            <h1 className="mb-4">myFlix</h1>
-
-            <Row className="g-4">
-              <Col md={6}>
-                <Card>
-                  <Card.Body>
-                    <Card.Title className="mb-3">Login</Card.Title>
-                    <LoginView
-                      onLoggedIn={(newUser, newToken) => {
-                        setUser(newUser);
-                        setToken(newToken);
-                      }}
-                    />
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col md={6}>
-                <Card>
-                  <Card.Body>
-                    <Card.Title className="mb-3">Sign Up</Card.Title>
-                    <SignupView />
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
-
-  // ---------- MOVIE DETAILS ----------
-  if (selectedMovie) {
-    return (
-      <Container className="py-4">
-        <Row className="justify-content-md-center">
-          <Col md={10} lg={8}>
-            <div className="d-flex justify-content-end mb-3">
-              <Button variant="outline-secondary" onClick={onLoggedOut}>
-                Logout
-              </Button>
-            </div>
-
-            <MovieView
-              movie={selectedMovie}
-              onBackClick={() => setSelectedMovie(null)}
-            />
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
-
-  // ---------- MOVIE LIST ----------
   return (
-    <Container className="py-4">
-      <Row className="align-items-center mb-3">
-        <Col>
-          <h1 className="mb-0">myFlix</h1>
-        </Col>
-        <Col className="text-end">
-          <Button variant="outline-secondary" onClick={onLoggedOut}>
-            Logout
-          </Button>
-        </Col>
-      </Row>
+    <BrowserRouter>
+      <NavigationBar user={user} onLoggedOut={onLoggedOut} />
 
-      {fetchError && (
-        <Alert variant="danger" className="mb-3">
-          <b>Error:</b> {fetchError}
-        </Alert>
-      )}
+      <Container className="py-4">
+        {fetchError && (
+          <Alert variant="danger" className="mb-3">
+            <b>Error:</b> {fetchError}
+          </Alert>
+        )}
 
-      {isLoading && <div>Loading movies...</div>}
+        <Row className="justify-content-md-center">
+          <Routes>
+            <Route
+              path="/signup"
+              element={
+                <>
+                  {user ? (
+                    <Navigate to="/" />
+                  ) : (
+                    <Col md={6} lg={5}>
+                      <Card>
+                        <Card.Body>
+                          <Card.Title className="mb-3">Sign Up</Card.Title>
+                          <SignupView />
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  )}
+                </>
+              }
+            />
 
-      {!isLoading && movies.length === 0 && !fetchError && (
-        <div>The list is empty!</div>
-      )}
+            <Route
+              path="/login"
+              element={
+                <>
+                  {user ? (
+                    <Navigate to="/" />
+                  ) : (
+                    <Col md={6} lg={5}>
+                      <Card>
+                        <Card.Body>
+                          <Card.Title className="mb-3">Login</Card.Title>
+                          <LoginView
+                            onLoggedIn={(newUser, newToken) => {
+                              setUser(newUser);
+                              setToken(newToken);
+                            }}
+                          />
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  )}
+                </>
+              }
+            />
 
-      {!isLoading && movies.length > 0 && (
-        <Row className="g-4">
-          {movies.map((movie) => (
-            <Col key={movie._id} sm={6} md={4} lg={3}>
-              <MovieCard
-                movie={movie}
-                onMovieClick={(newSelectedMovie) =>
-                  setSelectedMovie(newSelectedMovie)
-                }
-              />
-            </Col>
-          ))}
+            <Route
+              path="/movies/:movieId"
+              element={
+                <>
+                  {!user ? (
+                    <Navigate to="/login" replace />
+                  ) : isLoading ? (
+                    <Col>Loading movies...</Col>
+                  ) : movies.length === 0 ? (
+                    <Col>The list is empty!</Col>
+                  ) : (
+                    <Col md={10} lg={8}>
+                      <MovieView movies={movies} />
+                    </Col>
+                  )}
+                </>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <>
+                  {!user ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <Col md={10} lg={8}>
+                      <div>Profile view goes here.</div>
+                    </Col>
+                  )}
+                </>
+              }
+            />
+
+            <Route
+              path="/"
+              element={
+                <>
+                  {!user ? (
+                    <Navigate to="/login" replace />
+                  ) : isLoading ? (
+                    <Col>Loading movies...</Col>
+                  ) : movies.length === 0 ? (
+                    <Col>The list is empty!</Col>
+                  ) : (
+                    <Col>
+                      <Row className="g-4">
+                        {movies.map((movie) => (
+                          <Col key={movie._id} sm={6} md={4} lg={3}>
+                            <MovieCard movie={movie} />
+                          </Col>
+                        ))}
+                      </Row>
+                    </Col>
+                  )}
+                </>
+              }
+            />
+          </Routes>
         </Row>
-      )}
-    </Container>
+      </Container>
+    </BrowserRouter>
   );
 };
