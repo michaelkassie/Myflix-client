@@ -5,7 +5,9 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 
-export const SignupView = () => {
+export const SignupView = ({
+  apiBaseUrl = "https://movie-api-tvzg.onrender.com",
+}) => {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -22,33 +24,28 @@ export const SignupView = () => {
     setError("");
     setSuccess("");
 
-    const data = {
+    const payload = {
       Username: username,
       Password: password,
       Email: email,
       Birthday: birthday,
     };
 
-    fetch("https://movie-api-tvzg.onrender.com/users", {
+    fetch(`${apiBaseUrl}/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     })
       .then(async (response) => {
-        const text = await response.text();
-        let result;
-
-        try {
-          result = JSON.parse(text);
-        } catch {
-          result = { message: text };
-        }
+        const data = await response.json().catch(() => null);
 
         if (!response.ok) {
-          throw new Error(result.message || "Signup failed");
+          const msg =
+            data?.message || data?.error || "Signup failed";
+          throw new Error(msg);
         }
 
-        return result;
+        return data;
       })
       .then(() => {
         setSuccess("Signup successful! Redirecting to login...");
@@ -58,7 +55,7 @@ export const SignupView = () => {
         setBirthday("");
 
         setTimeout(() => {
-          navigate("/login");
+          navigate("/login", { replace: true });
         }, 800);
       })
       .catch((err) => {

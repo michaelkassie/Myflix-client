@@ -4,6 +4,7 @@ import { MovieView } from "../movie-view/movie-view";
 import { LoginView } from "../login-view/login-view";
 import { SignupView } from "../signup-view/signup-view";
 import { NavigationBar } from "../navigation-bar/navigation-bar";
+import { ProfileView } from "../profile-view/profile-view";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -12,6 +13,8 @@ import Card from "react-bootstrap/Card";
 import Alert from "react-bootstrap/Alert";
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+const API_BASE_URL = "https://movie-api-tvzg.onrender.com";
 
 export const MainView = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -29,7 +32,7 @@ export const MainView = () => {
     setIsLoading(true);
     setFetchError("");
 
-    fetch("https://movie-api-tvzg.onrender.com/movies", {
+    fetch(`${API_BASE_URL}/movies`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (response) => {
@@ -77,104 +80,126 @@ export const MainView = () => {
             <Route
               path="/signup"
               element={
-                <>
-                  {user ? (
-                    <Navigate to="/" />
-                  ) : (
-                    <Col md={6} lg={5}>
-                      <Card>
-                        <Card.Body>
-                          <Card.Title className="mb-3">Sign Up</Card.Title>
-                          <SignupView />
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  )}
-                </>
+                user ? (
+                  <Navigate to="/" />
+                ) : (
+                  <Col md={6} lg={5}>
+                    <Card>
+                      <Card.Body>
+                        <Card.Title className="mb-3">Sign Up</Card.Title>
+                        <SignupView apiBaseUrl={API_BASE_URL} />
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                )
               }
             />
 
             <Route
               path="/login"
               element={
-                <>
-                  {user ? (
-                    <Navigate to="/" />
-                  ) : (
-                    <Col md={6} lg={5}>
-                      <Card>
-                        <Card.Body>
-                          <Card.Title className="mb-3">Login</Card.Title>
-                          <LoginView
-                            onLoggedIn={(newUser, newToken) => {
-                              setUser(newUser);
-                              setToken(newToken);
-                            }}
-                          />
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  )}
-                </>
+                user ? (
+                  <Navigate to="/" />
+                ) : (
+                  <Col md={6} lg={5}>
+                    <Card>
+                      <Card.Body>
+                        <Card.Title className="mb-3">Login</Card.Title>
+                        <LoginView
+                          apiBaseUrl={API_BASE_URL}
+                          onLoggedIn={(newUser, newToken) => {
+                            setUser(newUser);
+                            setToken(newToken);
+                          }}
+                        />
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                )
               }
             />
 
             <Route
               path="/movies/:movieId"
               element={
-                <>
-                  {!user ? (
-                    <Navigate to="/login" replace />
-                  ) : isLoading ? (
-                    <Col>Loading movies...</Col>
-                  ) : movies.length === 0 ? (
-                    <Col>The list is empty!</Col>
-                  ) : (
-                    <Col md={10} lg={8}>
-                      <MovieView movies={movies} />
-                    </Col>
-                  )}
-                </>
+                !user ? (
+                  <Navigate to="/login" replace />
+                ) : isLoading ? (
+                  <Col>Loading movies...</Col>
+                ) : movies.length === 0 ? (
+                  <Col>The list is empty!</Col>
+                ) : (
+                  <Col md={10} lg={8}>
+                    <MovieView
+                      movies={movies}
+                      user={user}
+                      token={token}
+                      apiBaseUrl={API_BASE_URL}
+                      onUserUpdated={(updatedUser) => {
+                        setUser(updatedUser);
+                        localStorage.setItem("user", JSON.stringify(updatedUser));
+                      }}
+                    />
+                  </Col>
+                )
               }
             />
 
             <Route
               path="/profile"
               element={
-                <>
-                  {!user ? (
-                    <Navigate to="/login" replace />
-                  ) : (
-                    <Col md={10} lg={8}>
-                      <div>Profile view goes here.</div>
-                    </Col>
-                  )}
-                </>
+                !user ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <Col md={10} lg={8}>
+                    <ProfileView
+                      user={user}
+                      token={token}
+                      movies={movies}
+                      apiBaseUrl={API_BASE_URL}
+                      onUserUpdated={(updatedUser) => {
+                        setUser(updatedUser);
+                        localStorage.setItem("user", JSON.stringify(updatedUser));
+                      }}
+                      onLoggedOut={onLoggedOut}
+                    />
+                  </Col>
+                )
               }
             />
 
             <Route
               path="/"
               element={
-                <>
-                  {!user ? (
-                    <Navigate to="/login" replace />
-                  ) : isLoading ? (
-                    <Col>Loading movies...</Col>
-                  ) : movies.length === 0 ? (
-                    <Col>The list is empty!</Col>
-                  ) : (
-                    <Col>
-                      <Row className="g-4">
-                        {movies.map((movie) => (
-                          <Col key={movie._id} sm={6} md={4} lg={3}>
-                            <MovieCard movie={movie} />
-                          </Col>
-                        ))}
-                      </Row>
-                    </Col>
-                  )}
-                </>
+                !user ? (
+                  <Navigate to="/login" replace />
+                ) : isLoading ? (
+                  <Col>Loading movies...</Col>
+                ) : movies.length === 0 ? (
+                  <Col>The list is empty!</Col>
+                ) : (
+                  <Col>
+                    <Row className="g-4">
+                      {movies.map((movie) => (
+                        <Col key={movie._id} sm={6} md={4} lg={3}>
+                          <MovieCard
+                            movie={movie}
+                            user={user}
+                            token={token}
+                            apiBaseUrl={API_BASE_URL}
+                            onUserUpdated={(updatedUser) => {
+                              setUser(updatedUser);
+                              localStorage.setItem(
+                                "user",
+                                JSON.stringify(updatedUser)
+                              );
+                            }}
+                          />
+                        </Col>
+                      ))}
+                    </Row>
+                  </Col>
+                )
               }
             />
           </Routes>

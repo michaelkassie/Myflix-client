@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 
-export const LoginView = ({ onLoggedIn }) => {
+export const LoginView = ({ onLoggedIn, apiBaseUrl = "https://movie-api-tvzg.onrender.com" }) => {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -21,32 +21,29 @@ export const LoginView = ({ onLoggedIn }) => {
       Password: password,
     };
 
-    fetch("https://movie-api-tvzg.onrender.com/login", {
+    fetch(`${apiBaseUrl}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
       .then(async (response) => {
-        const text = await response.text();
-        let data;
-
-        try {
-          data = JSON.parse(text);
-        } catch {
-          data = { message: text };
-        }
+        const data = await response.json().catch(() => null);
 
         if (!response.ok) {
-          throw new Error(data.message || "Login failed");
+          const msg =
+            data?.message || data?.error || "Login failed";
+          throw new Error(msg);
         }
 
         return data;
       })
       .then((data) => {
-        if (data.user && data.token) {
+        if (data?.user && data?.token) {
           localStorage.setItem("user", JSON.stringify(data.user));
           localStorage.setItem("token", data.token);
+
           onLoggedIn(data.user, data.token);
+
           navigate("/", { replace: true });
         } else {
           throw new Error("Login response missing user/token");

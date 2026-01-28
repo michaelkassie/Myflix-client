@@ -3,18 +3,88 @@ import { useParams, Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Image from "react-bootstrap/Image";
+import Alert from "react-bootstrap/Alert";
+import { useState } from "react";
 
-export const MovieView = ({ movies }) => {
+export const MovieView = ({ movies, user, token, apiBaseUrl, onUserUpdated }) => {
   const { movieId } = useParams();
   const movie = movies.find((m) => m._id === movieId);
+
+  const [error, setError] = useState("");
 
   if (!movie) {
     return <div>Movie not found.</div>;
   }
 
+  const username = user?.Username || user?.username;
+  const isFavorite = !!user?.FavoriteMovies?.includes(movie._id);
+
+  const authedFetch = async (url, options = {}) => {
+    if (!token) throw new Error("Missing token");
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        ...(options.headers || {}),
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || "Request failed");
+    }
+
+    return res;
+  };
+
+  const addFavorite = async () => {
+    setError("");
+    if (!username) return;
+
+    try {
+      const res = await authedFetch(
+        `${apiBaseUrl}/users/${encodeURIComponent(username)}/movies/${encodeURIComponent(
+          movie._id
+        )}`,
+        { method: "POST" }
+      );
+      const updatedUser = await res.json();
+      onUserUpdated?.(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const removeFavorite = async () => {
+    setError("");
+    if (!username) return;
+
+    try {
+      const res = await authedFetch(
+        `${apiBaseUrl}/users/${encodeURIComponent(username)}/movies/${encodeURIComponent(
+          movie._id
+        )}`,
+        { method: "DELETE" }
+      );
+      const updatedUser = await res.json();
+      onUserUpdated?.(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <Card>
       <Card.Body>
+        {error && (
+          <Alert variant="danger" className="mb-3">
+            {error}
+          </Alert>
+        )}
+
         <Link to="/" className="p-0 mb-3 d-inline-block">
           <Button variant="link" className="p-0">
             ← Back
@@ -24,6 +94,18 @@ export const MovieView = ({ movies }) => {
         <Card.Title as="h2" className="mb-3">
           {movie.Title}
         </Card.Title>
+
+        <div className="mb-3">
+          {isFavorite ? (
+            <Button variant="outline-danger" onClick={removeFavorite}>
+              Unfavorite
+            </Button>
+          ) : (
+            <Button variant="outline-primary" onClick={addFavorite}>
+              Favorite
+            </Button>
+          )}
+        </div>
 
         {movie.ImagePath && (
           <div className="mb-3">
@@ -79,4 +161,8 @@ MovieView.propTypes = {
       }),
     })
   ).isRequired,
+  user: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  token: PropTypes.string,
+  apiBaseUrl: PropTypes.string,
+  onUserUpdated: PropTypes.func,
 };
