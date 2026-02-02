@@ -1,7 +1,7 @@
 
 
-$primary: #0042af;     // Sleep Well blue
-$secondary: #fef1d0;   // Sleep Well cream
+$primary: #0042af;     
+$secondary: #fef1d0;   
 
 $body-bg: #fef1d0;
 $body-color: #081a33;
@@ -12,7 +12,7 @@ $link-hover-color: darken(#0042af, 10%);
 $border-radius: 1.25rem;
 $btn-border-radius: 999px;
 
-/* Bootstrap component vars */
+
 $card-bg: rgba(255, 255, 255, 0.55);
 $card-border-color: rgba(0, 66, 175, 0.16);
 
@@ -21,16 +21,14 @@ $headings-font-weight: 800;
 
 @import "bootstrap/scss/bootstrap";
 
-/* -------------------------------------------------
-   Base
--------------------------------------------------- */
+
 
 :root {
   --sw-blue: #0042af;
   --sw-cream: #fef1d0;
   --sw-ink: #081a33;
 
-  /* Free font substitutes to match feel */
+  
   --font-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   --font-serif: Fraunces, Georgia, "Times New Roman", serif;
 }
@@ -88,9 +86,7 @@ body::after {
   pointer-events: none;
 }
 
-/* -------------------------------------------------
-   Layout wrapper
--------------------------------------------------- */
+
 
 .appShell {
   max-width: 1180px;
@@ -98,9 +94,7 @@ body::after {
   padding: 26px 16px 64px;
 }
 
-/* -------------------------------------------------
-   Make Bootstrap components feel “custom”
--------------------------------------------------- */
+
 
 .card {
   border-radius: 22px;
@@ -308,9 +302,7 @@ body::after {
   box-shadow: 0 20px 70px rgba(8,26,51,0.10);
 }
 
-/* -------------------------------------------------
-   Movie tiles (paper card instead of neon glass)
--------------------------------------------------- */
+
 
 .movieTile {
   border-radius: 22px;
