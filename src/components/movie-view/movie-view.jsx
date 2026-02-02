@@ -2,25 +2,33 @@ import PropTypes from "prop-types";
 import { useParams, Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import Image from "react-bootstrap/Image";
 import Alert from "react-bootstrap/Alert";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export const MovieView = ({ movies, user, token, apiBaseUrl, onUserUpdated }) => {
   const { movieId } = useParams();
-  const movie = movies.find((m) => m._id === movieId);
+
+  // If your route uses encodeURIComponent, decode it before matching.
+  const decodedId = useMemo(() => {
+    try {
+      return decodeURIComponent(movieId);
+    } catch {
+      return movieId;
+    }
+  }, [movieId]);
+
+  const movie = movies.find((m) => m._id === decodedId);
 
   const [error, setError] = useState("");
 
-  if (!movie) {
-    return <div>Movie not found.</div>;
-  }
+  if (!movie) return <div>Movie not found.</div>;
 
   const username = user?.Username || user?.username;
   const isFavorite = !!user?.FavoriteMovies?.includes(movie._id);
 
   const authedFetch = async (url, options = {}) => {
     if (!token) throw new Error("Missing token");
+
     const res = await fetch(url, {
       ...options,
       headers: {
@@ -49,6 +57,7 @@ export const MovieView = ({ movies, user, token, apiBaseUrl, onUserUpdated }) =>
         )}`,
         { method: "POST" }
       );
+
       const updatedUser = await res.json();
       onUserUpdated?.(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -68,6 +77,7 @@ export const MovieView = ({ movies, user, token, apiBaseUrl, onUserUpdated }) =>
         )}`,
         { method: "DELETE" }
       );
+
       const updatedUser = await res.json();
       onUserUpdated?.(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -77,7 +87,7 @@ export const MovieView = ({ movies, user, token, apiBaseUrl, onUserUpdated }) =>
   };
 
   return (
-    <Card>
+    <Card className="viewCard">
       <Card.Body>
         {error && (
           <Alert variant="danger" className="mb-3">
@@ -85,58 +95,79 @@ export const MovieView = ({ movies, user, token, apiBaseUrl, onUserUpdated }) =>
           </Alert>
         )}
 
-        <Link to="/" className="p-0 mb-3 d-inline-block">
-          <Button variant="link" className="p-0">
-            ← Back
-          </Button>
-        </Link>
-
-        <Card.Title as="h2" className="mb-3">
-          {movie.Title}
-        </Card.Title>
-
-        <div className="mb-3">
-          {isFavorite ? (
-            <Button variant="outline-danger" onClick={removeFavorite}>
-              Unfavorite
+        {/* Header row: back + title */}
+        <div className="viewHeader mb-3">
+          <Link to="/" className="text-decoration-none">
+            <Button variant="link" className="p-0">
+              ← Back
             </Button>
-          ) : (
-            <Button variant="outline-primary" onClick={addFavorite}>
-              Favorite
-            </Button>
-          )}
-        </div>
+          </Link>
 
-        {movie.ImagePath && (
-          <div className="mb-3">
-            <Image
-              src={movie.ImagePath}
-              alt={`${movie.Title} poster`}
-              rounded
-              fluid
-            />
+          <div className="actionRow">
+            {isFavorite ? (
+              <Button variant="outline-danger" onClick={removeFavorite}>
+                Unfavorite
+              </Button>
+            ) : (
+              <Button variant="outline-primary" onClick={addFavorite}>
+                Favorite
+              </Button>
+            )}
           </div>
-        )}
-
-        {movie.Description && (
-          <Card.Text className="mb-4">{movie.Description}</Card.Text>
-        )}
-
-        <div className="mb-4">
-          <h3 className="h5 mb-2">Genre</h3>
-          <p className="mb-0">
-            <b>{movie.Genre?.Name}</b>
-            {movie.Genre?.Description ? `: ${movie.Genre.Description}` : ""}
-          </p>
         </div>
 
-        <div>
-          <h3 className="h5 mb-2">Director</h3>
-          <p className="mb-1">
-            <b>{movie.Director?.Name}</b>
-            {movie.Director?.Birth ? ` (Born: ${movie.Director.Birth})` : ""}
-          </p>
-          {movie.Director?.Bio && <p className="mb-0">{movie.Director.Bio}</p>}
+        <h1 className="viewTitle">{movie.Title}</h1>
+
+        {/* Pills row */}
+        <div className="movieMetaRow">
+          {movie.Genre?.Name && <span className="pill">🎭 {movie.Genre.Name}</span>}
+          {movie.Director?.Name && <span className="pill">🎬 {movie.Director.Name}</span>}
+          {movie.Director?.Birth && <span className="pill">🗓️ {movie.Director.Birth}</span>}
+        </div>
+
+        {/* Main layout grid */}
+        <div className="movieBodyGrid mt-3">
+          <div className="posterWrap">
+            {movie.ImagePath ? (
+              <img
+                className="posterImg"
+                src={movie.ImagePath}
+                alt={`${movie.Title} poster`}
+                loading="lazy"
+              />
+            ) : (
+              <div className="sw-panel d-flex align-items-center justify-content-center">
+                No poster available
+              </div>
+            )}
+          </div>
+
+          <div>
+            {movie.Description && <p className="movieDesc">{movie.Description}</p>}
+
+            {/* Genre block */}
+            {(movie.Genre?.Name || movie.Genre?.Description) && (
+              <div className="mt-4">
+                <h3 className="h5 mb-2">Genre</h3>
+                <p className="mb-0">
+                  <b>{movie.Genre?.Name}</b>
+                  {movie.Genre?.Description ? `: ${movie.Genre.Description}` : ""}
+                </p>
+              </div>
+            )}
+
+            {/* Director block */}
+            {(movie.Director?.Name || movie.Director?.Bio) && (
+              <div className="mt-4">
+                <h3 className="h5 mb-2">Director</h3>
+                <p className="mb-1">
+                  <b>{movie.Director?.Name}</b>
+                  {movie.Director?.Birth ? ` (Born: ${movie.Director.Birth})` : ""}
+                </p>
+                {movie.Director?.Bio && <p className="mb-0">{movie.Director.Bio}</p>}
+              </div>
+            )}
+          </div>
         </div>
       </Card.Body>
     </Card>

@@ -1,15 +1,385 @@
 
-$primary: #0d6efd;     // Bootstrap default blue
-$body-bg: #f8f9fa;     // light gray background
-$body-color: #212529;  // default text color
 
+$primary: #0042af;     // Sleep Well blue
+$secondary: #fef1d0;   // Sleep Well cream
 
-@import "~bootstrap/scss/bootstrap";
+$body-bg: #fef1d0;
+$body-color: #081a33;
 
-html, body {
+$link-color: #0042af;
+$link-hover-color: darken(#0042af, 10%);
+
+$border-radius: 1.25rem;
+$btn-border-radius: 999px;
+
+/* Bootstrap component vars */
+$card-bg: rgba(255, 255, 255, 0.55);
+$card-border-color: rgba(0, 66, 175, 0.16);
+
+$btn-font-weight: 800;
+$headings-font-weight: 800;
+
+@import "bootstrap/scss/bootstrap";
+
+/* -------------------------------------------------
+   Base
+-------------------------------------------------- */
+
+:root {
+  --sw-blue: #0042af;
+  --sw-cream: #fef1d0;
+  --sw-ink: #081a33;
+
+  /* Free font substitutes to match feel */
+  --font-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --font-serif: Fraunces, Georgia, "Times New Roman", serif;
+}
+
+html,
+body {
   height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--sw-cream);
+  color: var(--sw-ink);
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   min-height: 100%;
+}
+
+a {
+  color: var(--sw-blue);
+  text-decoration: none;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: darken(#0042af, 10%);
+  text-decoration: underline;
+}
+
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 66, 175, 0.12), transparent 52%),
+    radial-gradient(circle at 80% 30%, rgba(0, 66, 175, 0.08), transparent 55%),
+    radial-gradient(circle at 40% 80%, rgba(8, 26, 51, 0.05), transparent 55%);
+  filter: blur(28px);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.10;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* -------------------------------------------------
+   Layout wrapper
+-------------------------------------------------- */
+
+.appShell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 26px 16px 64px;
+}
+
+/* -------------------------------------------------
+   Make Bootstrap components feel “custom”
+-------------------------------------------------- */
+
+.card {
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.60);
+  border: 1px solid rgba(0, 66, 175, 0.16);
+  box-shadow: 0 20px 70px rgba(8, 26, 51, 0.10);
+}
+
+.form-control,
+.form-select {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(0, 66, 175, 0.18);
+  color: var(--sw-ink);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: rgba(0, 66, 175, 0.55);
+  box-shadow: 0 0 0 0.25rem rgba(0, 66, 175, 0.15);
+}
+
+/* Buttons: pill + clean */
+.btn {
+  border-radius: 999px !important;
+  letter-spacing: -0.2px;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: var(--sw-blue);
+  border-color: var(--sw-blue);
+}
+
+.btn-outline-light {
+  /* outline-light looks wrong on cream */
+  color: var(--sw-blue);
+  border-color: rgba(0, 66, 175, 0.35);
+  background: rgba(255, 255, 255, 0.35);
+}
+.btn-outline-light:hover {
+  background: rgba(0, 66, 175, 0.08);
+}
+
+/* Badges in your hero: don’t use bg="dark" anymore */
+.badge.bg-dark {
+  background: rgba(0, 66, 175, 0.08) !important;
+  border: 1px solid rgba(0, 66, 175, 0.18);
+  color: var(--sw-ink) !important;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+/* -------------------------------------------------
+   Sleep Well nav (sticky + minimal)
+-------------------------------------------------- */
+
+.sw-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin-bottom: 18px;
+  background: rgba(254, 241, 208, 0.72);
+  border-bottom: 1px solid rgba(0, 66, 175, 0.14);
+  backdrop-filter: blur(10px);
+}
+
+.sw-nav__inner {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.sw-nav__brand {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  color: var(--sw-ink) !important;
+}
+
+.sw-nav .nav-link {
+  color: rgba(8, 26, 51, 0.78) !important;
+  font-weight: 800;
+  border-radius: 14px;
+  padding: 8px 10px;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.sw-nav .nav-link:hover {
+  background: rgba(0, 66, 175, 0.06);
+  color: rgba(8, 26, 51, 0.95) !important;
+}
+
+.sw-nav .nav-link.is-active {
+  background: rgba(0, 66, 175, 0.10);
+  border: 1px solid rgba(0, 66, 175, 0.18);
+  color: rgba(8, 26, 51, 0.95) !important;
+}
+
+.sw-nav__btn {
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-weight: 900;
+}
+
+/* -------------------------------------------------
+   Sleep Well hero + sections
+-------------------------------------------------- */
+
+.sw-hero {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  margin: 10px 0 28px;
+  padding: clamp(26px, 5vw, 70px);
+  min-height: 62vh;
+  display: grid;
+  align-items: end;
+  border: 1px solid rgba(0, 66, 175, 0.16);
+  background:
+    radial-gradient(1200px 650px at 20% 20%, rgba(0, 66, 175, 0.12), transparent 60%),
+    radial-gradient(900px 560px at 80% 30%, rgba(0, 66, 175, 0.08), transparent 55%),
+    rgba(255, 255, 255, 0.35);
+  box-shadow: 0 30px 90px rgba(8, 26, 51, 0.14);
+}
+
+.sw-kicker {
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.80;
+  font-size: 12px;
+}
+
+.sw-title {
+  font-family: var(--font-serif);
+  margin: 10px 0 14px;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+  font-size: clamp(46px, 6.5vw, 98px);
+  color: rgba(8, 26, 51, 0.98);
+}
+
+.sw-subtitle {
+  opacity: 0.86;
+  max-width: 64ch;
+  line-height: 1.7;
+}
+
+.sw-scrollCue {
+  margin-top: 18px;
+  opacity: 0.65;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.sw-section {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(0, 66, 175, 0.14);
+}
+
+.sw-section__num {
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  opacity: 0.70;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.sw-section__grid {
+  display: grid;
+  grid-template-columns: 1fr minmax(260px, 520px);
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .sw-section__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sw-h2 {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  font-size: clamp(26px, 3vw, 46px);
+  margin: 0 0 10px;
+}
+
+.sw-p {
+  opacity: 0.86;
+  line-height: 1.75;
+  max-width: 66ch;
+}
+
+.sw-panel {
+  border-radius: 24px;
+  border: 1px solid rgba(0,66,175,0.14);
+  background: rgba(255,255,255,0.50);
+  min-height: 320px;
+  box-shadow: 0 20px 70px rgba(8,26,51,0.10);
+}
+
+/* -------------------------------------------------
+   Movie tiles (paper card instead of neon glass)
+-------------------------------------------------- */
+
+.movieTile {
+  border-radius: 22px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(0,66,175,0.14);
+  background: rgba(255,255,255,0.62);
+  box-shadow: 0 18px 60px rgba(8,26,51,0.10);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.movieTile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 26px 80px rgba(8,26,51,0.14);
+}
+
+.movieTile__media {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  overflow: hidden;
+}
+
+.movieTile__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+  transition: transform 220ms ease;
+  display: block;
+}
+
+.movieTile:hover .movieTile__img {
+  transform: scale(1.08);
+}
+
+.movieTile__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(254,241,208,0.00) 15%,
+    rgba(254,241,208,0.18) 58%,
+    rgba(8,26,51,0.68) 100%
+  );
+  opacity: 0.98;
+}
+
+.movieTile__title {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  font-family: var(--font-serif);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  font-size: 14px;
+  color: #fff;
+  text-shadow: 0 12px 30px rgba(8,26,51,0.55);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Movie view typography */
+.viewTitle {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  letter-spacing: -0.06em;
 }
